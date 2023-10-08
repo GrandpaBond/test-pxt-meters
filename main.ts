@@ -1,64 +1,4 @@
-/* 
-Thermometer:
-   uses the default digital meter to show the current microbit temperature
-   (constrained to the range 0 degrees to 99 degrees)
-
-Clicker:
-   A simple use of the default digital meter lets you count things up
-   (with Button A) and down(with Button B).  Possibly useful for counting
-   people at an event; or cars in a carpark; or even in sheep in a pen, 
-   though the limit is 99.
-
-Bangometer:
-  This example monitors jolts and knocks using the Spiral indicator.
-  The wound-up size of the display shows the strength of each bang
-  (up to a maximun of 1000 milli-gravities). The indicator is then 
-  unwound back to zero over a time of 1.5 seconds.
-
-Compass:
-  The following code uses the rotary Dial style to show a compass needle that
-  (should) always point North.Note that the dial uses a reversed scale 
-  counting from 360 degrees down to zero. (You will first have to tilt the screen 
-  as instructed to initialise the magnetometer)
-
-Noise Meter:
-  The following code uses the Bar style to show peak noise levels, sampled 
-  four times a second.The reading uses a rolling average, so gradually dies away 
-  over time. If it's too loud the indicator will flash to show a range error.
-
-Water Spill:
-  This example uses the Tidal indicator to simulate spilling water from the 
-  bottom left to the top right as you tilt the microbit. A half-second animation 
-  delay makes the movement smoother.
-
-Plumb-line:
-  Another use of the accelerometer maps the Pitch rotation(displaced by a 
-  right-angle) onto the Dial indicator, with a reversed range, so that the 
-  needle always hangs downwards.
-  
-Lie-detector
-  This final example uses the Needle indicator to monitor the capacitive input
-  on Pin2 of the microbit. The reading is a rolling average, and despite 
-  possible inputs ranging from[0.. 1023], the sensitivity has been 
-  experimentally focused onto a smaller working range of[600.. 800].
-*/
-
-
-
-enum Tests {
-    Thermometer,
-    Clicker,
-    Bangometer,
-    Compass,
-    NoiseMeter,
-    WaterSpill,
-    PlumbLine,
-    LieDetector
-}
-const maxTest = 8;
-
-function setupTest(test: number) {
-    meter.hide();
+function setupTest (test: number) {
     switch (test) {
         case Tests.Thermometer:
             meter.digital();
@@ -93,7 +33,7 @@ function setupTest(test: number) {
     }
 }
 
-function updateTest(test: number) {
+function updateTest (test: number) {
     switch (test) {
         case Tests.Thermometer:
             reading = input.temperature();
@@ -141,49 +81,68 @@ function updateTest(test: number) {
 input.onButtonPressed(Button.A, function () {
     if (choosing) {
         if (choice > 0) {
-            choice--;
-            basic.showNumber(choice);
+            choice -= 1;
         }
     } else {
         if (choice = Tests.Clicker) {
-            if (count > -1) { count-- }
+            if (count > -1) {
+                count -= 1;
+            }
         }
     }
-});
+})
 
 input.onButtonPressed(Button.B, function () {
     if (choosing) {
         if (choice < maxTest) {
-            choice++;
-            basic.showNumber(choice);
+            choice += 1
         }
     } else {
         if (choice = Tests.Clicker) {
-            if (count < 101) { count++ }
+            if (count < 101) {
+                count += 1
+            }
         }
     }
-});
+})
 
 input.onButtonPressed(Button.AB, function () {
-    if (choosing) {
-        choosing = false;
-        setupTest(choice); // initiate test
-    } else {
-        meter.hide(); // terminate test
-        basic.pause(500);
-        //music.tonePlayable(Note.C, music.beat(BeatFraction.Whole))
-        basic.showNumber(choice);
-        choosing = true;
-    }
-});
+            choosing = !(choosing);
+})
 
-let choosing = true;
-let count = 0;
+enum Tests {
+    Thermometer,
+    Clicker,
+    Bangometer,
+    Compass,
+    NoiseMeter,
+    WaterSpill,
+    PlumbLine,
+    LieDetector
+};
+let maxTest = 7;
 let reading = 0;
+let count = 0;
 let choice = 0;
-basic.showNumber(choice);
-while (true) {  // keep iterating...
-    if (!choosing) {
+let choosing = true;
+let running = false;
+while (true) {
+    // keep iterating...
+    if (choosing) {
+        if (running) { // terminate current test's display first
+            meter.hide();
+            basic.pause(50);
+            running = false;
+        }
+        basic.showNumber(choice);
+    } else {  // run the test
+        if (!running) { // set the test up first
+            meter.hide();
+            basic.pause(50);
+            // initiate test
+            setupTest(choice);
+            running = true;
+        }
         updateTest(choice);
     }
     pause(20);
