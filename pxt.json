@@ -5,16 +5,14 @@
         "core": "*",
         "radio": "*",
         "microphone": "*",
-        "pxt-meters": "github:grandpabond/pxt-meters#v0.1.12"
+        "pxt-meters": "github:grandpabond/pxt-meters#v0.1.13"
     },
     "files": [
         "main.blocks",
         "main.ts",
         "README.md"
     ],
-    "testFiles": [
-        "test.ts"
-    ],
+    "testFiles": [],
     "targetVersions": {
         "target": "6.1.6",
         "targetId": "microbit"

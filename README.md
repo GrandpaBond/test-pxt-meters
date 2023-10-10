@@ -32,9 +32,8 @@
   delay makes the movement smoother.
 
 ## Plumb-line (6)
-  Another use of the accelerometer maps the Pitch rotation(displaced by a 
-  right-angle) onto the Dial indicator, with a reversed range, so that the 
-  needle always hangs downwards.
+  Another use of the accelerometer computes the Yaw rotation, then maps it (displaced
+  by a right-angle) onto the Dial indicator, so that the needle always hangs downwards.
   
 ## Lie-detector (7)
   This final example uses the Needle indicator to monitor the capacitive input

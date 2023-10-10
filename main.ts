@@ -8,7 +8,9 @@ function setupTest (test: number) {
             meter.digital();
             break;
         case Tests.Bangometer:
-            meter.use(meter.Styles.Spiral, 0, 1000);
+            meter.use(meter.Styles.Spiral, 0, 800);
+            reading = 1000;
+            meter.show(0);
             break;
         case Tests.Compass:
             input.calibrateCompass();
@@ -23,7 +25,7 @@ function setupTest (test: number) {
             meter.use(meter.Styles.Tidal, -30, 30);
             break;
         case Tests.PlumbLine:
-            meter.use(meter.Styles.Dial, 360, 0);
+            meter.use(meter.Styles.Dial, 0, 360);
             break;
         case Tests.LieDetector:
             meter.use(meter.Styles.Needle, 600, 800);
@@ -33,20 +35,24 @@ function setupTest (test: number) {
     }
 }
 
+
+
+
 function updateTest (test: number) {
     switch (test) {
         case Tests.Thermometer:
             reading = input.temperature();
             meter.show(reading);
-            basic.pause(5000);
+            basic.pause(1000);
             break;
         case Tests.Clicker:
             meter.show(count);
             break;
         case Tests.Bangometer:
-            if (input.isGesture(Gesture.ThreeG)) {
-                reading = input.acceleration(Dimension.Strength);
-                meter.show(reading);
+            let bang = input.acceleration(Dimension.Strength);
+            if ( bang > 2000) {
+                meter.show(Math.abs(bang-reading));
+                reading = bang; 
                 meter.show(0, 1500);
             }
             break;
@@ -66,7 +72,11 @@ function updateTest (test: number) {
             basic.pause(1000);
             break;
         case Tests.PlumbLine:
-            reading = (input.rotation(Rotation.Pitch) + 442) % 360;
+            // input.rotation(Rotation.Yaw) doesn't seem to exist!
+            let ax = input.acceleration(Dimension.X);
+            let ay = input.acceleration(Dimension.Y);
+            let yaw = Math.atan2(ay, ax) * 180 / Math.PI;
+            reading = (yaw + 450) % 360;
             meter.show(reading);
             basic.pause(1000);
             break;
@@ -95,12 +105,12 @@ input.onButtonPressed(Button.A, function () {
 input.onButtonPressed(Button.B, function () {
     if (choosing) {
         if (choice < maxTest) {
-            choice += 1
+            choice += 1;
         }
     } else {
         if (choice = Tests.Clicker) {
-            if (count < 101) {
-                count += 1
+            if (count < 100) {
+                count += 1;
             }
         }
     }
@@ -120,7 +130,7 @@ enum Tests {
     PlumbLine,
     LieDetector
 };
-let maxTest = 7;
+let maxTest = Tests.LieDetector;
 let reading = 0;
 let count = 0;
 let choice = 0;
