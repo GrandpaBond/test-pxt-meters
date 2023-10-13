@@ -5,7 +5,7 @@
         "core": "*",
         "radio": "*",
         "microphone": "*",
-        "pxt-meters": "github:grandpabond/pxt-meters#v0.1.13"
+        "pxt-meters": "github:grandpabond/pxt-meters#master"
     },
     "files": [
         "main.blocks",

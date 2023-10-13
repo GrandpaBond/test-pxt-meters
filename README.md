@@ -29,18 +29,20 @@
 ## Water Spill (5)
   This example uses the Tidal indicator to simulate spilling water from the 
   bottom left to the top right as you tilt the microbit. A half-second animation 
-  delay makes the movement smoother.
+  delay semmulates viscosity, making the movement smoother.
 
 ## Plumb-line (6)
   Another use of the accelerometer computes the Yaw rotation, then maps it (displaced
   by a right-angle) onto the Dial indicator, so that the needle always hangs downwards.
   
 ## Lie-detector (7)
-  This final example uses the Needle indicator to monitor the capacitive input
+  This example uses the Needle indicator to monitor the capacitive input
   on Pin2 of the microbit. The reading is a rolling average, and despite 
   possible inputs ranging from[0.. 1023], the sensitivity has been 
   experimentally focused onto a smaller working range of[600.. 800].
 
+## Light Meter (7)
+  This final example uses the Bar indicator to monitor the ambient light-level.
 
 
 > Open this page at [https://grandpabond.github.io/test-pxt-meters/](https://grandpabond.github.io/test-pxt-meters/)
