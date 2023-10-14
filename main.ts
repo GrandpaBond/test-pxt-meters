@@ -2,49 +2,74 @@ function setupTest (test: number) {
     switch (test) {
         case Tests.Thermometer:
             meter.digital();
+            showOff(0, 99);
+            showOff(99, 0);
             break;
         case Tests.Clicker:
-            count = 0;
             meter.digital();
+            showOff(0, 99);
+            showOff(99, 0);
+            count = 0;
             break;
         case Tests.Bangometer:
-            meter.use(meter.Styles.Spiral, 0, 200);
-            reading = 1000; // gravity at rest
-            meter.show(200); 
-            meter.show(0,500); // initial unwinding display
-            basic.pause(500);
+            meter.use(meter.Styles.Blob, 50, 1000);
+            showOff(0, 1000);
+            showOff(1000, 0);
+            newValue = 1000; // gravity when at rest
             break;
         case Tests.Compass:
             input.calibrateCompass();
             basic.pause(2000);
-            meter.use(meter.Styles.Dial, 360, 0);
+            meter.use(meter.Styles.Dial, 359, 0);
+            showOff(0, 359);
+            showOff(359, 0);
             break;
         case Tests.NoiseMeter:
-            meter.use(meter.Styles.Blob, 30, 80);
-            reading = 0;
+            meter.use(meter.Styles.Spiral, 40, 80);
+            showOff(40, 80);
+            showOff(80, 40);
+            newValue = 60;
             break;
         case Tests.WaterSpill:
-            meter.use(meter.Styles.Tidal, -30, 30);
+            meter.use(meter.Styles.Tidal, -30, 20);
+            showOff(-30, 20);
+            showOff(20, -30);
+            newValue = 0;
             break;
         case Tests.PlumbLine:
-            meter.use(meter.Styles.Dial, 0, 360);
+            meter.use(meter.Styles.Dial, 0, 359);
+            showOff(0, 359);
+            showOff(359, 0);
             break;
         case Tests.LieDetector:
-            meter.use(meter.Styles.Needle, 600, 800);
+            meter.use(meter.Styles.Needle, 250, 750);
             pins.touchSetMode(TouchTarget.P2, TouchTargetMode.Capacitive);
-            reading = 700;
+            showOff(250, 750);
+            showOff(750, 250);
+            newValue = 500;
             break;
         case Tests.LightLevel:
             meter.use(meter.Styles.Bar, 50, 200);
+            showOff(0, 359);
+            showOff(359, 0);
             break;
     }
 }
 
-function updateTest (test: number) {
+function showOff(a: number, b: number) {
+    // sweep meter from a to b over 1 sec
+    meter.show(a);
+    basic.pause(250);
+    meter.show(b, 1000);
+    basic.pause(1500);
+}
+
+function updateTest(test: number) {
+    oldValue = newValue;
     switch (test) {
         case Tests.Thermometer:
-            reading = input.temperature();
-            meter.show(reading);
+            newValue = input.temperature();
+            meter.show(newValue);
             basic.pause(500);
             break;
         case Tests.Clicker:
@@ -52,49 +77,53 @@ function updateTest (test: number) {
             basic.pause(50); 
             break;
         case Tests.Bangometer:
-            let accel = input.acceleration(Dimension.Strength);
-            let bang = Math.abs(accel-reading)
-            reading = accel;
-            if (accel > 50) { 
-                meter.show(bang);
-                basic.pause(250); // show the maximum
-                meter.show(0, 1500); // dwindle over time
+            newValue = input.acceleration(Dimension.Strength);
+            metric = Math.abs(newValue - oldValue) // rate of change
+            if (metric > 50) { 
+                meter.show(metric);
+                basic.pause(50); // show new maximum
+                meter.show(50, 1500); // then dwindle over time
             }
             basic.pause(10); // to detect bangs, we can't hang about!
             break;
         case Tests.Compass:
-            reading = input.compassHeading();
-            meter.show(reading);
+            newValue = input.compassHeading();
+            meter.show(newValue);
             basic.pause(500);
             break;
         case Tests.NoiseMeter:  // TODO add threshold 
-            reading = (reading + input.soundLevel()) / 2;
-            meter.show(reading, 800); // dwindle over time
+            newValue = input.soundLevel();
+            metric = (oldValue + newValue) / 2; // use rolling average
+            meter.show(metric, 800); // adjust gradually
             basic.pause(250);
             break;
         case Tests.WaterSpill:
-            reading = input.rotation(Rotation.Roll) - input.rotation(Rotation.Pitch);
-            meter.show(reading, 500); // add some viscosity
-            basic.pause(1000);
+            newValue = input.rotation(Rotation.Roll) - input.rotation(Rotation.Pitch);
+            //metric = (oldValue + newValue) / 2;  use rolling average
+            meter.show(newValue, 1000); // add some viscosity
+            // meter.hide();
+            // basic.showNumber(newValue);
+            basic.pause(500);
             break;
         case Tests.PlumbLine:
             // input.rotation(Rotation.Yaw) doesn't seem to exist!
             let ax = input.acceleration(Dimension.X);
             let ay = input.acceleration(Dimension.Y);
             let yaw = Math.atan2(ay, ax) * 180 / Math.PI;
-            reading = (yaw + 450) % 360;
-            meter.show(reading);
+            newValue = (yaw + 450) % 360;
+            meter.show(newValue);
             basic.pause(100);
             break;
         case Tests.LieDetector:
-            reading = (reading + pins.analogReadPin(AnalogPin.P2)) / 2;
-            meter.show(reading);
+            newValue = pins.analogReadPin(AnalogPin.P2);
+            metric = (oldValue + newValue) / 2; // use rolling average
+            meter.show(metric);
+            basic.pause(500);
             break;
-            basic.pause(250);
         case Tests.LightLevel:
-            reading = input.lightLevel();
-            meter.show(reading, 1000); // dwindle over time
-            basic.pause(1000);
+            newValue = input.lightLevel();
+            meter.show(newValue, 1000); // adjust slowly
+            basic.pause(500); // reassess twice per sec
             break;
     }
 }
@@ -143,7 +172,9 @@ enum Tests {
     LightLevel
 };
 let maxTest = Tests.LightLevel;
-let reading = 0;
+let newValue = 0;
+let oldValue = 0;
+let metric = 0;
 let count = 0;
 let choice = 0;
 let choosing = true;

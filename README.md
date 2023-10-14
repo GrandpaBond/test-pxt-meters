@@ -1,4 +1,7 @@
 # Tests for Meters
+Initially, test "0" is shown as selected: use the buttons to change this.
+Then press A+B to start the selected test, which will first sweeping the meter over its complete range.
+
 ## Thermometer (0)
    Uses the default digital meter to show the current microbit temperature
    (constrained to the range 0 degrees to 99 degrees)
