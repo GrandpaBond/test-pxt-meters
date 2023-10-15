@@ -42,11 +42,11 @@ function setupTest (test: number) {
             showOff(359, 0);
             break;
         case Tests.LieDetector:
-            meter.use(meter.Styles.Needle, 250, 750);
+            meter.use(meter.Styles.Needle, 600, 900);
             pins.touchSetMode(TouchTarget.P2, TouchTargetMode.Capacitive);
-            showOff(250, 750);
-            showOff(750, 250);
-            newValue = 500;
+            showOff(600, 900);
+            showOff(900, 600);
+            newValue = 750;
             break;
         case Tests.LightLevel:
             meter.use(meter.Styles.Bar, 50, 200);
